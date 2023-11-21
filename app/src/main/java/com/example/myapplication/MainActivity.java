@@ -1,15 +1,19 @@
 package com.example.myapplication;
 
-import static com.example.myapplication.LoginMethods.checkpass;
-
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.example.myapplication.db.DBContract;
+import com.example.myapplication.db.LoginDbHelper;
 
 public class MainActivity extends AppCompatActivity {
         private final String usr_name = "tits";
@@ -26,25 +30,123 @@ public class MainActivity extends AppCompatActivity {
 
 
         //button stuff
-        Button myButton = findViewById(R.id.button);
-        myButton.setOnClickListener(new View.OnClickListener(){
+        Button loginButton = findViewById(R.id.login);
+        loginButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
-                String userinput = username.getText().toString();
-                String passinput = passfield.getText().toString();
-                if(usr_name.equals(userinput)&&password.equals(passinput)){
-                    System.out.println("cockcasdoa");
-                    Toast.makeText(MainActivity.this, "come on in ", Toast.LENGTH_SHORT).show();
+                String userInput = username.getText().toString();
+                String passInput = passfield.getText().toString();
+                if(loginUser(userInput, passInput)){
+                    Toast.makeText(MainActivity.this, "arfff ", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(MainActivity.this, SecondActivity.class);
                     startActivity(intent);
+                }
+
+                else{
+                    Toast.makeText(MainActivity.this, "wrong ", Toast.LENGTH_SHORT).show();
+
                 }
 
 
 
             }
         });
+        //button for registration
+        Button registerButton = findViewById(R.id.rbutton);
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String user = username.getText().toString();
+                String pass = passfield.getText().toString();
+                try{
+                    if(usernameExists(user)==false){
+                    createUser(user, pass);
+                    Toast.makeText(MainActivity.this, "register sucksesful", Toast.LENGTH_SHORT).show();}
+                    else{
+                        Toast.makeText(MainActivity.this, "username is taken", Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+                catch(Exception e){
+                    Toast.makeText(MainActivity.this, "register not successful", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
 
     }
+    private boolean loginUser(String username, String password) {
+        LoginDbHelper dbHelper = new LoginDbHelper(this);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {DBContract.LoginDB.COLUMN_ID, DBContract.LoginDB.COLUMN_UNAME, DBContract.LoginDB.COLUMN_PASSWD};
+        String selection = DBContract.LoginDB.COLUMN_UNAME + " = ?";
+        String[] selectionArgs = {username};
+
+        Cursor cursor = db.query(
+                DBContract.LoginDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if (cursor.moveToFirst()) {
+            int unameIndex = cursor.getColumnIndex(DBContract.LoginDB.COLUMN_UNAME);
+            int passwdIndex = cursor.getColumnIndex(DBContract.LoginDB.COLUMN_PASSWD);
+            String storedUname = cursor.getString(unameIndex);
+            String storedPass = cursor.getString(passwdIndex);
+
+            cursor.close();
+            dbHelper.close();
+
+            return username.equals(storedUname) && password.equals(storedPass);
+        } else {
+            // No matching user found
+            cursor.close();
+            dbHelper.close();
+            return false;
+        }
+    }
+
+    private void createUser(String username, String password) {
+        LoginDbHelper dbHelper = new LoginDbHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DBContract.LoginDB.COLUMN_UNAME, username);
+        values.put(DBContract.LoginDB.COLUMN_PASSWD, password);
+
+        long newRowId = db.insert(DBContract.LoginDB.TABLE_NAME, null, values);
+
+        dbHelper.close();
+    }
+    private boolean usernameExists(String username) {
+        LoginDbHelper dbHelper = new LoginDbHelper(this);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {DBContract.LoginDB.COLUMN_ID};
+        String selection = DBContract.LoginDB.COLUMN_UNAME + " = ?";
+        String[] selectionArgs = {username};
+
+        Cursor cursor = db.query(
+                DBContract.LoginDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        int count = cursor.getCount();
+        cursor.close();
+        dbHelper.close();
+
+        return count > 0;
+    }
+
 }
