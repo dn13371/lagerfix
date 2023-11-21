@@ -1,2 +1,1 @@
-sock
-cock
+just a useless android app :)
