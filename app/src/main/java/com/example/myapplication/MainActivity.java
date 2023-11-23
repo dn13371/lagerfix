@@ -37,9 +37,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String userInput = username.getText().toString();
                 String passInput = passfield.getText().toString();
+                String uid = getID(userInput);
                 if(loginUser(userInput, passInput)){
-                    Toast.makeText(MainActivity.this, "arfff ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, uid, Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                    intent.putExtra("UID",uid);
                     startActivity(intent);
                 }
 
@@ -147,6 +149,41 @@ public class MainActivity extends AppCompatActivity {
         dbHelper.close();
 
         return count > 0;
+    }
+
+    private String getID(String username) {
+        LoginDbHelper dbHelper = new LoginDbHelper(this);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {DBContract.LoginDB.COLUMN_ID, DBContract.LoginDB.COLUMN_UNAME, DBContract.LoginDB.COLUMN_PASSWD};
+        String selection = DBContract.LoginDB.COLUMN_UNAME + " = ?";
+        String[] selectionArgs = {username};
+
+        Cursor cursor = db.query(
+                DBContract.LoginDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if (cursor.moveToFirst()) {
+            int unameIndex = cursor.getColumnIndex(DBContract.LoginDB.COLUMN_UNAME);
+            String storedUname = cursor.getString(unameIndex);
+            int idIndex = cursor.getColumnIndex(DBContract.LoginDB.COLUMN_ID);
+            String storedID = cursor.getString(idIndex);
+            cursor.close();
+            dbHelper.close();
+
+            return storedID;
+        } else {
+            // No matching user found
+            cursor.close();
+            dbHelper.close();
+            return "false";
+        }
     }
 
 }
