@@ -12,12 +12,14 @@ public class LoginDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        System.out.println("creating db");
+        System.out.println("creating db for login");
         db.execSQL(DBContract.LoginDB.CREATE_TABLE);
+        System.out.println("creating table for items");
+        db.execSQL(DBContract.ItemsDB.CREATE_TABLE);
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Handle database upgrades here
     }
 }
