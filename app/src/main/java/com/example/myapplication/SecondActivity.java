@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
@@ -36,9 +37,9 @@ public class SecondActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                textView.setText("kekw");
+                textView.setText( getAllItemDescriptionsAsString());
                 Toast.makeText(SecondActivity.this, "going back to first activity", Toast.LENGTH_SHORT).show();
-                createMockItemEntries();
+                getAllItemDescriptionsAsString();
                 //Intent intent = new Intent(SecondActivity.this, MainActivity.class);
                 //startActivity(intent);
             }
@@ -65,6 +66,35 @@ public class SecondActivity extends AppCompatActivity {
 
         System.out.println("Mock entries added to ITEM DB");
         dbHelper.close();
+    }
+    public String getAllItemDescriptionsAsString() {
+        StringBuilder itemDescriptionsString = new StringBuilder();
+        LoginDbHelper dbHelper = new LoginDbHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String[] projection = {DBContract.ItemsDB.COLUMN_ITEM_DESC};
+
+        Cursor cursor = db.query(
+                DBContract.ItemsDB.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int descIndex = cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_ITEM_DESC);
+                String itemDescription = cursor.getString(descIndex);
+                itemDescriptionsString.append(itemDescription).append("\n");
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+
+        db.close();
+        return itemDescriptionsString.toString();
     }
 
 
