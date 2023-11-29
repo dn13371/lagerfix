@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ClipData;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
                 String uid = getID(userInput);
                 if(loginUser(userInput, passInput)){
                     Toast.makeText(MainActivity.this, uid, Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                    Intent intent = new Intent(MainActivity.this, ItemListActivity.class);
                     intent.putExtra("UID",uid);
                     startActivity(intent);
                 }

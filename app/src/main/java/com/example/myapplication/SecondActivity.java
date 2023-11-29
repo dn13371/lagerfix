@@ -37,9 +37,10 @@ public class SecondActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                textView.setText( getAllItemDescriptionsAsString());
+                textView.setText( getAllItemDescriptionsAsString(loggedInUID));
                 Toast.makeText(SecondActivity.this, "going back to first activity", Toast.LENGTH_SHORT).show();
-                getAllItemDescriptionsAsString();
+                createMockItemEntries(loggedInUID);
+                //getAllItemDescriptionsAsString();
                 //Intent intent = new Intent(SecondActivity.this, MainActivity.class);
                 //startActivity(intent);
             }
@@ -49,17 +50,20 @@ public class SecondActivity extends AppCompatActivity {
 
 
 
+
+
+
     }
-    private void createMockItemEntries() {
+    private void createMockItemEntries(String uid) {
         LoginDbHelper dbHelper = new LoginDbHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 1; i++) {
             ContentValues values = new ContentValues();
             values.put(DBContract.ItemsDB.COLUMN_ITEM_DESC, "Item " + i);
             values.put(DBContract.ItemsDB.COLUMN_EAN, 100000000000L + i); // Example EAN values, adjust as needed
-            values.put(DBContract.ItemsDB.COLUMN_BELONGS_TO, "User " + i);
-            values.put(DBContract.ItemsDB.COLUMN_QTY, i * 10); // Example quantity values, adjust as needed
+            values.put(DBContract.ItemsDB.COLUMN_BELONGS_TO, uid);
+            values.put(DBContract.ItemsDB.COLUMN_QTY, i ); // Example quantity values, adjust as needed
 
             long newRowId = db.insert(DBContract.ItemsDB.TABLE_NAME, null, values);
         }
@@ -67,17 +71,20 @@ public class SecondActivity extends AppCompatActivity {
         System.out.println("Mock entries added to ITEM DB");
         dbHelper.close();
     }
-    public String getAllItemDescriptionsAsString() {
+    public String getAllItemDescriptionsAsString(String uid) {
         StringBuilder itemDescriptionsString = new StringBuilder();
         LoginDbHelper dbHelper = new LoginDbHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        String[] projection = {DBContract.ItemsDB.COLUMN_ITEM_DESC};
+        String[] projection = {DBContract.ItemsDB.COLUMN_BELONGS_TO};
+        String selection = DBContract.ItemsDB.COLUMN_BELONGS_TO + " = ?";
+        String[] selectionArgs = {uid};
 
         Cursor cursor = db.query(
                 DBContract.ItemsDB.TABLE_NAME,
                 projection,
-                null,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 null,
@@ -86,7 +93,7 @@ public class SecondActivity extends AppCompatActivity {
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                int descIndex = cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_ITEM_DESC);
+                int descIndex = cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_BELONGS_TO);
                 String itemDescription = cursor.getString(descIndex);
                 itemDescriptionsString.append(itemDescription).append("\n");
             } while (cursor.moveToNext());
