@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.shelvedClasses;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,8 +12,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myapplication.R;
 import com.example.myapplication.db.DBContract;
-import com.example.myapplication.db.LoginDbHelper;
+import com.example.myapplication.db.DbHelper;
 
 public class SecondActivity extends AppCompatActivity {
 
@@ -37,10 +38,9 @@ public class SecondActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                textView.setText( getAllItemDescriptionsAsString(loggedInUID));
+                textView.setText( getAllItemDescriptionsAsString());
                 Toast.makeText(SecondActivity.this, "going back to first activity", Toast.LENGTH_SHORT).show();
-                createMockItemEntries(loggedInUID);
-                //getAllItemDescriptionsAsString();
+                getAllItemDescriptionsAsString();
                 //Intent intent = new Intent(SecondActivity.this, MainActivity.class);
                 //startActivity(intent);
             }
@@ -50,20 +50,17 @@ public class SecondActivity extends AppCompatActivity {
 
 
 
-
-
-
     }
-    private void createMockItemEntries(String uid) {
-        LoginDbHelper dbHelper = new LoginDbHelper(this);
+    private void createMockItemEntries() {
+        DbHelper dbHelper = new DbHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 5; i++) {
             ContentValues values = new ContentValues();
             values.put(DBContract.ItemsDB.COLUMN_ITEM_DESC, "Item " + i);
             values.put(DBContract.ItemsDB.COLUMN_EAN, 100000000000L + i); // Example EAN values, adjust as needed
-            values.put(DBContract.ItemsDB.COLUMN_BELONGS_TO, uid);
-            values.put(DBContract.ItemsDB.COLUMN_QTY, i ); // Example quantity values, adjust as needed
+            values.put(DBContract.ItemsDB.COLUMN_BELONGS_TO, "User " + i);
+            values.put(DBContract.ItemsDB.COLUMN_QTY, i * 10); // Example quantity values, adjust as needed
 
             long newRowId = db.insert(DBContract.ItemsDB.TABLE_NAME, null, values);
         }
@@ -71,20 +68,17 @@ public class SecondActivity extends AppCompatActivity {
         System.out.println("Mock entries added to ITEM DB");
         dbHelper.close();
     }
-    public String getAllItemDescriptionsAsString(String uid) {
+    public String getAllItemDescriptionsAsString() {
         StringBuilder itemDescriptionsString = new StringBuilder();
-        LoginDbHelper dbHelper = new LoginDbHelper(this);
+        DbHelper dbHelper = new DbHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        String[] projection = {DBContract.ItemsDB.COLUMN_BELONGS_TO};
-        String selection = DBContract.ItemsDB.COLUMN_BELONGS_TO + " = ?";
-        String[] selectionArgs = {uid};
+        String[] projection = {DBContract.ItemsDB.COLUMN_ITEM_DESC};
 
         Cursor cursor = db.query(
                 DBContract.ItemsDB.TABLE_NAME,
                 projection,
-                selection,
-                selectionArgs,
+                null,
                 null,
                 null,
                 null,
@@ -93,7 +87,7 @@ public class SecondActivity extends AppCompatActivity {
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                int descIndex = cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_BELONGS_TO);
+                int descIndex = cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_ITEM_DESC);
                 String itemDescription = cursor.getString(descIndex);
                 itemDescriptionsString.append(itemDescription).append("\n");
             } while (cursor.moveToNext());

@@ -10,8 +10,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
+import com.example.myapplication.R;
 import com.example.myapplication.db.DBContract;
-import com.example.myapplication.db.LoginDbHelper;
+import com.example.myapplication.db.DbHelper;
 import com.example.myapplication.rvList.ListItem;
 import com.example.myapplication.rvList.ListViewAdapter;
 
@@ -29,6 +30,7 @@ public class ItemListActivity extends AppCompatActivity {
         String loggedInUID = intent.getStringExtra("UID");
         createMockItemEntries(loggedInUID);
         RecyclerView recyclerView = findViewById(R.id.rvItems);
+
         List<ListItem> dbDump = getAllDBEntries(loggedInUID);
         ListViewAdapter adapter = new ListViewAdapter(dbDump);
         recyclerView.setAdapter(adapter);
@@ -38,7 +40,7 @@ public class ItemListActivity extends AppCompatActivity {
 
     }
     public List<ListItem> getAllDBEntries(String uid) {
-        LoginDbHelper dbHelper = new LoginDbHelper(this);
+        DbHelper dbHelper = new DbHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         List<ListItem> itemList = new ArrayList<>();
         String[] projection = {DBContract.ItemsDB.COLUMN_ID, DBContract.ItemsDB.COLUMN_ITEM_DESC, DBContract.ItemsDB.COLUMN_EAN,DBContract.ItemsDB.COLUMN_BELONGS_TO, DBContract.ItemsDB.COLUMN_QTY};
@@ -78,7 +80,7 @@ public class ItemListActivity extends AppCompatActivity {
         return itemList;
     }
     private void createMockItemEntries(String uid) {
-        LoginDbHelper dbHelper = new LoginDbHelper(this);
+        DbHelper dbHelper = new DbHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         for (int i = 0; i < 2; i++) {

@@ -28,7 +28,6 @@ public class ListViewAdapter extends
     public ListViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-
         View itemView = inflater.inflate(R.layout.row_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(itemView);
         return viewHolder;
@@ -58,10 +57,8 @@ public class ListViewAdapter extends
 
         public ViewHolder(View itemView) {
             super(itemView);
-            descTextView = (TextView) itemView.findViewById(R.id.item_description);
-            qtyView = (TextView) itemView.findViewById(R.id.item_qty);
+            descTextView = (TextView) itemView.findViewById(R.id.username);
 
-            messageButton = (Button) itemView.findViewById(R.id.add_item);
 
 
         }

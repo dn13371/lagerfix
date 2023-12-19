@@ -24,7 +24,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SecondActivity" />
+
+
+
+        <activity android:name=".shelvedClasses.SecondActivity" />
+        <activity android:name=".ChooseModeActivity" />
+        <activity android:name=".WarehouseActivity" />
+        <activity android:name=".ManageWarehouseActivity" />
+
+
+
     </application>
 
 </manifest>
