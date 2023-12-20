@@ -34,7 +34,7 @@ public class ListViewAdapterManageWarehouse extends RecyclerView.Adapter<ListVie
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ListItemManageWarehouse item = items.get(position);
-        holder.descTextView.setText(item.getUsername());
+        holder.userName.setText(item.getUsername());
         holder.removeUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -50,13 +50,18 @@ public class ListViewAdapterManageWarehouse extends RecyclerView.Adapter<ListVie
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView descTextView;
+        public TextView userName;
         public Button removeUserButton;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            descTextView = itemView.findViewById(R.id.username);
+            userName = itemView.findViewById(R.id.username);
             removeUserButton = itemView.findViewById(R.id.RemoveUser);
         }
+    }
+    public void updateList(List<ListItemManageWarehouse> newList) {
+        items.clear();
+        items.addAll(newList);
+        notifyDataSetChanged();
     }
 }

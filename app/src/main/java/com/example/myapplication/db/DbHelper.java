@@ -71,6 +71,38 @@ public class DbHelper extends SQLiteOpenHelper {
 
         return userId;
     }
+    public String getUsernameByUserId(String userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Define the columns you want to retrieve
+        String[] projection = {DBContract.LoginDB.COLUMN_UNAME};
+
+        // Specify the WHERE clause
+        String selection = DBContract.LoginDB.COLUMN_ID + " = ?";
+        String[] selectionArgs = {userId};
+
+        // Query the database
+        Cursor cursor = db.query(
+                DBContract.LoginDB.TABLE_NAME,   // The table to query
+                projection,           // The columns to return
+                selection,            // The columns for the WHERE clause
+                selectionArgs,        // The values for the WHERE clause
+                null,                 // Don't group the rows
+                null,                 // Don't filter by row groups
+                null                  // The sort order
+        );
+
+        String username = null; // Default value if no user is found
+
+        if (cursor.moveToFirst()) {
+            username = cursor.getString(cursor.getColumnIndexOrThrow(DBContract.LoginDB.COLUMN_UNAME));
+        }
+
+        cursor.close();
+
+        return username;
+    }
+
     public boolean usernameExists(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -227,6 +259,41 @@ public class DbHelper extends SQLiteOpenHelper {
         System.out.println(userHasAccess);
         return userHasAccess;
     }
+
+    public List<String> getUserIdsByWarehouseId(String warehouseId) {
+        List<String> userIds = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Define the columns you want to retrieve
+        String[] projection = {DBContract.WarehouseAccess.COLUMN_UID};
+
+        // Specify the WHERE clause
+        String selection = DBContract.WarehouseAccess.COLUMN_ID + " = ?";
+        String[] selectionArgs = {warehouseId};
+
+        // Query the database
+        Cursor cursor = db.query(
+                DBContract.WarehouseAccess.TABLE_NAME,   // The table to query
+                projection,           // The columns to return
+                selection,            // The columns for the WHERE clause
+                selectionArgs,        // The values for the WHERE clause
+                null,                 // Don't group the rows
+                null,                 // Don't filter by row groups
+                null                  // The sort order
+        );
+
+        // Iterate through the cursor and add user IDs to the list
+        while (cursor.moveToNext()) {
+            String userId = cursor.getString(cursor.getColumnIndexOrThrow(DBContract.WarehouseAccess.COLUMN_UID));
+            userIds.add(userId);
+        }
+
+        cursor.close();
+        db.close();
+
+        return userIds;
+    }
+
 
 
 

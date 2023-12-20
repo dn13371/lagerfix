@@ -1,4 +1,5 @@
 package com.example.myapplication;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import android.content.ContentValues;
@@ -26,7 +27,8 @@ import com.example.myapplication.rvListManageWarehouse.rvList.ListItemManageWare
 import com.example.myapplication.rvListManageWarehouse.rvList.ListViewAdapterManageWarehouse;
 
 public class ManageWarehouseActivity extends AppCompatActivity {
-    String  currentWarehouse = null;
+    String currentWarehouse = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,13 @@ public class ManageWarehouseActivity extends AppCompatActivity {
         Button addWarehouseButton = findViewById(R.id.ConfirmWarehouseName);
         Button addUserButton = findViewById(R.id.AddUserButton);
 
+        List<ListItemManageWarehouse> userList = getCurrentAccessObjectsList("asdfo9lSfGA5", loggedInUID);
+        ListViewAdapterManageWarehouse adapter = new ListViewAdapterManageWarehouse(userList);
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(ManageWarehouseActivity.this));
+
+
 
         if (intent!=null){
             Log.d(loggedInUID, loggedInUID);
@@ -56,6 +65,10 @@ public class ManageWarehouseActivity extends AppCompatActivity {
                 if (!dbHelper.doesWarehouseExist(warehouseName.getText().toString())) {
                     setCurrentWarehouse(dbHelper.createWarehouseAndReturnCurrentWarehouse(warehouseName.getText().toString(), loggedInUID));
                     Toast.makeText(ManageWarehouseActivity.this, "warehouse created successfully", Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(ManageWarehouseActivity.this, userList.get(0).getUsername(), Toast.LENGTH_SHORT).show();
+
+
 
                     addWarehouseButton.setEnabled(false);
 
@@ -85,7 +98,10 @@ public class ManageWarehouseActivity extends AppCompatActivity {
                 if (currentWarehouse!=null){
                     if(matchingUID!= null){
                         if(!dbHelper.doesUserHaveAccess(matchingUID.toString(),currentWarehouse)){
-                        dbHelper.allowUserAccess(matchingUID.toString(),currentWarehouse);}
+                        dbHelper.allowUserAccess(matchingUID.toString(),currentWarehouse);
+                        adapter.updateList(getCurrentAccessObjectsList(currentWarehouse, loggedInUID));
+
+                        }
                         else{
                             Toast.makeText(ManageWarehouseActivity.this, "User already has access", Toast.LENGTH_SHORT).show();
 
@@ -108,6 +124,26 @@ public class ManageWarehouseActivity extends AppCompatActivity {
     public void setCurrentWarehouse(String currentWarehouse){
        this.currentWarehouse = currentWarehouse;
     }
+    public String getCurrentWarehouse(){
+        return currentWarehouse;
+    }
+
+    public List<ListItemManageWarehouse> getCurrentAccessObjectsList(String currentWarehouse, String currentUser) {
+        DbHelper dbHelper = new DbHelper(ManageWarehouseActivity.this);
+        List<String> userIds = dbHelper.getUserIdsByWarehouseId(currentWarehouse);
+        List<ListItemManageWarehouse> userAccessList = new ArrayList<>();
+
+        for (String userID : userIds) {
+            if (!userID.equals(currentUser)) {
+                ListItemManageWarehouse newItem = new ListItemManageWarehouse(userID, dbHelper.getUsernameByUserId(userID));
+                userAccessList.add(newItem);
+            }
+        }
+
+        return userAccessList;
+    }
+
+
 
 
 
