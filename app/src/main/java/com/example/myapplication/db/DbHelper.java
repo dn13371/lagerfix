@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.myapplication.rvListManageWarehouse.rvList.ListItemManageWarehouse;
+import com.example.myapplication.rvListManageWarehouse.warehousesListRvList.ListItemManageWarehouse;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -294,6 +294,35 @@ public class DbHelper extends SQLiteOpenHelper {
         return userIds;
     }
 
+    public List<ListItemManageWarehouse> getCurrentAccessObjectsList(String currentWarehouse, String currentUser) {
+        if (currentWarehouse.equals("none9912837")){
+            List<ListItemManageWarehouse> userAccessList = new ArrayList<>();
+
+            return userAccessList;
+
+        }
+        else {
+            List<String> userIds = getUserIdsByWarehouseId(currentWarehouse);
+            List<ListItemManageWarehouse> userAccessList = new ArrayList<>();
+
+            for (String userID : userIds) {
+                if (!userID.equals(currentUser)) {
+                    ListItemManageWarehouse newItem = new ListItemManageWarehouse(userID, getUsernameByUserId(userID));
+                    userAccessList.add(newItem);
+                }
+            }
+
+            return userAccessList;
+        }
+    }
+    public void removeWarehouseAccess(String warehouseId, String uid) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = DBContract.WarehouseAccess.COLUMN_ID + " = ? AND " + DBContract.WarehouseAccess.COLUMN_UID + " = ?";
+        String[] selectionArgs = {warehouseId, uid};
+
+        db.delete(DBContract.WarehouseAccess.TABLE_NAME, selection, selectionArgs);
+        db.close();
+    }
 
 
 

@@ -1,4 +1,4 @@
-package com.example.myapplication.rvListManageWarehouse.rvList;
+package com.example.myapplication.rvListManageWarehouse.warehousesListRvList;
 
 public class ListItemManageWarehouse {
     private String userId;

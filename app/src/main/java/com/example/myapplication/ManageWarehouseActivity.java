@@ -1,30 +1,22 @@
 package com.example.myapplication;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import android.content.ContentValues;
+
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.security.SecureRandom;
 
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myapplication.db.DBContract;
 import com.example.myapplication.db.DbHelper;
-import com.example.myapplication.rvListManageWarehouse.rvList.ListItemManageWarehouse;
-import com.example.myapplication.rvListManageWarehouse.rvList.ListViewAdapterManageWarehouse;
+import com.example.myapplication.rvListManageWarehouse.warehousesListRvList.ListItemManageWarehouse;
+import com.example.myapplication.rvListManageWarehouse.warehousesListRvList.ListViewAdapterManageWarehouse;
 
 public class ManageWarehouseActivity extends AppCompatActivity {
     String currentWarehouse = null;
@@ -46,7 +38,7 @@ public class ManageWarehouseActivity extends AppCompatActivity {
         Button addWarehouseButton = findViewById(R.id.ConfirmWarehouseName);
         Button addUserButton = findViewById(R.id.AddUserButton);
 
-        List<ListItemManageWarehouse> userList = getCurrentAccessObjectsList("asdfo9lSfGA5", loggedInUID);
+        List<ListItemManageWarehouse> userList = dbHelper.getCurrentAccessObjectsList("none9912837", loggedInUID);
         ListViewAdapterManageWarehouse adapter = new ListViewAdapterManageWarehouse(userList);
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setAdapter(adapter);
@@ -65,8 +57,8 @@ public class ManageWarehouseActivity extends AppCompatActivity {
                 if (!dbHelper.doesWarehouseExist(warehouseName.getText().toString())) {
                     setCurrentWarehouse(dbHelper.createWarehouseAndReturnCurrentWarehouse(warehouseName.getText().toString(), loggedInUID));
                     Toast.makeText(ManageWarehouseActivity.this, "warehouse created successfully", Toast.LENGTH_SHORT).show();
-
-                    Toast.makeText(ManageWarehouseActivity.this, userList.get(0).getUsername(), Toast.LENGTH_SHORT).show();
+                    adapter.setWarehouse(currentWarehouse);
+                    adapter.setCurrentUser(loggedInUID);
 
 
 
@@ -99,7 +91,7 @@ public class ManageWarehouseActivity extends AppCompatActivity {
                     if(matchingUID!= null){
                         if(!dbHelper.doesUserHaveAccess(matchingUID.toString(),currentWarehouse)){
                         dbHelper.allowUserAccess(matchingUID.toString(),currentWarehouse);
-                        adapter.updateList(getCurrentAccessObjectsList(currentWarehouse, loggedInUID));
+                        adapter.updateList(dbHelper.getCurrentAccessObjectsList(currentWarehouse, loggedInUID));
 
                         }
                         else{
@@ -128,20 +120,7 @@ public class ManageWarehouseActivity extends AppCompatActivity {
         return currentWarehouse;
     }
 
-    public List<ListItemManageWarehouse> getCurrentAccessObjectsList(String currentWarehouse, String currentUser) {
-        DbHelper dbHelper = new DbHelper(ManageWarehouseActivity.this);
-        List<String> userIds = dbHelper.getUserIdsByWarehouseId(currentWarehouse);
-        List<ListItemManageWarehouse> userAccessList = new ArrayList<>();
 
-        for (String userID : userIds) {
-            if (!userID.equals(currentUser)) {
-                ListItemManageWarehouse newItem = new ListItemManageWarehouse(userID, dbHelper.getUsernameByUserId(userID));
-                userAccessList.add(newItem);
-            }
-        }
-
-        return userAccessList;
-    }
 
 
 

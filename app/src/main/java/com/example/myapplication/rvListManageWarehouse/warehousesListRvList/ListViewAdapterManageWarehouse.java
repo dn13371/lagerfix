@@ -1,4 +1,4 @@
-package com.example.myapplication.rvListManageWarehouse.rvList;
+package com.example.myapplication.rvListManageWarehouse.warehousesListRvList;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,15 +11,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
+import com.example.myapplication.db.DbHelper;
 
 import java.util.List;
 
 public class ListViewAdapterManageWarehouse extends RecyclerView.Adapter<ListViewAdapterManageWarehouse.ViewHolder> {
 
     private List<ListItemManageWarehouse> items;
+    private String warehouse;
+    private String currentUser;
 
     public ListViewAdapterManageWarehouse(List<ListItemManageWarehouse> items) {
         this.items = items;
+
     }
 
     @NonNull
@@ -33,13 +37,20 @@ public class ListViewAdapterManageWarehouse extends RecyclerView.Adapter<ListVie
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Context context = holder.itemView.getContext();
+        DbHelper dbHelper = new DbHelper(context);
+
         ListItemManageWarehouse item = items.get(position);
         holder.userName.setText(item.getUsername());
         holder.removeUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle the remove user button click here
-                // You can use the position to identify the clicked item
+                String uid = item.getUserId();
+                dbHelper.removeWarehouseAccess(warehouse,uid);
+
+
+                updateList(dbHelper.getCurrentAccessObjectsList(warehouse,currentUser));
+
             }
         });
     }
@@ -63,5 +74,11 @@ public class ListViewAdapterManageWarehouse extends RecyclerView.Adapter<ListVie
         items.clear();
         items.addAll(newList);
         notifyDataSetChanged();
+    }
+    public void setWarehouse(String warehouse){
+        this.warehouse = warehouse;
+    }
+    public void setCurrentUser(String currentUser){
+        this.currentUser = currentUser;
     }
 }
