@@ -28,7 +28,7 @@ public class ListViewAdapter extends
     public ListViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View itemView = inflater.inflate(R.layout.row_item, parent, false);
+        View itemView = inflater.inflate(R.layout.row_item_warehouse, parent, false);
         ViewHolder viewHolder = new ViewHolder(itemView);
         return viewHolder;
 

@@ -67,6 +67,13 @@ public class MainActivity extends AppCompatActivity {
 
                 String user = username.getText().toString();
                 String pass = passfield.getText().toString();
+                if(user.equals("anni")){
+
+                    Toast.makeText(MainActivity.this, "ANNI IST EIN RICHTOG FETTES SCHWEIN", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Grunz grunz grunz", Toast.LENGTH_SHORT).show();
+
+                }
+
                 try{
                     if(dbHelper.usernameExists(user)==false){
                     dbHelper.createUser(user, pass);

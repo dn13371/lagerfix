@@ -31,6 +31,8 @@
         <activity android:name=".ChooseModeActivity" />
         <activity android:name=".WarehouseActivity" />
         <activity android:name=".ManageWarehouseActivity" />
+        <activity android:name=".EditWarehouseActivity" />
+
 
 
 

@@ -6,10 +6,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.myapplication.WarehousesRvList.ListItemWarehouse;
 import com.example.myapplication.rvListManageWarehouse.warehousesListRvList.ListItemManageWarehouse;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class DbHelper extends SQLiteOpenHelper {
@@ -295,6 +297,7 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     public List<ListItemManageWarehouse> getCurrentAccessObjectsList(String currentWarehouse, String currentUser) {
+
         if (currentWarehouse.equals("none9912837")){
             List<ListItemManageWarehouse> userAccessList = new ArrayList<>();
 
@@ -303,6 +306,15 @@ public class DbHelper extends SQLiteOpenHelper {
         }
         else {
             List<String> userIds = getUserIdsByWarehouseId(currentWarehouse);
+            Iterator<String> iterator = userIds.iterator();
+            while (iterator.hasNext()){
+                String currItem = iterator.next();
+                if (currItem.equals(currentUser)){
+                    iterator.remove();
+                }
+            }
+
+
             List<ListItemManageWarehouse> userAccessList = new ArrayList<>();
 
             for (String userID : userIds) {
@@ -322,6 +334,68 @@ public class DbHelper extends SQLiteOpenHelper {
 
         db.delete(DBContract.WarehouseAccess.TABLE_NAME, selection, selectionArgs);
         db.close();
+    }
+
+    public List<String> getAccessibleWarehouses(String userId) {
+        List<String> warehouses = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {DBContract.WarehouseAccess.COLUMN_ID};
+        String selection = DBContract.WarehouseAccess.COLUMN_UID + " = ?";
+        String[] selectionArgs = {userId};
+
+        Cursor cursor = db.query(
+                DBContract.WarehouseAccess.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        while (cursor.moveToNext()) {
+            String warehouseId = cursor.getString(cursor.getColumnIndexOrThrow(DBContract.WarehouseAccess.COLUMN_ID));
+            warehouses.add(warehouseId);
+        }
+
+        cursor.close();
+        return warehouses;
+    }
+    public String getWarehouseNameById(String warehouseId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {DBContract.WarehousesDB.COLUMN_WAREHOUSE_NAME};
+        String selection = DBContract.WarehousesDB.COLUMN_ID + " = ?";
+        String[] selectionArgs = {warehouseId};
+
+        Cursor cursor = db.query(
+                DBContract.WarehousesDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        String warehouseName = null;
+        if (cursor.moveToNext()) {
+            warehouseName = cursor.getString(cursor.getColumnIndexOrThrow(DBContract.WarehousesDB.COLUMN_WAREHOUSE_NAME));
+        }
+
+        cursor.close();
+        return warehouseName;
+    }
+    public List<ListItemWarehouse> createWarehouseObject (String userID){
+        List<String> warehouses = getAccessibleWarehouses(userID);
+        List<ListItemWarehouse> warehouseObjects = new ArrayList<>();
+        for (String warehouse : warehouses){
+            ListItemWarehouse newWarehouse = new ListItemWarehouse(warehouse,getWarehouseNameById(warehouse));
+            warehouseObjects.add(newWarehouse);
+        }
+        return  warehouseObjects;
+
     }
 
 

@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
-import com.example.myapplication.R;
 import com.example.myapplication.db.DBContract;
 import com.example.myapplication.db.DbHelper;
 import com.example.myapplication.rvList.ListItem;
@@ -29,7 +28,7 @@ public class ItemListActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String loggedInUID = intent.getStringExtra("UID");
         createMockItemEntries(loggedInUID);
-        RecyclerView recyclerView = findViewById(R.id.rvItems);
+        RecyclerView recyclerView = findViewById(R.id.rvWarehouseList);
 
         List<ListItem> dbDump = getAllDBEntries(loggedInUID);
         ListViewAdapter adapter = new ListViewAdapter(dbDump);
@@ -39,6 +38,7 @@ public class ItemListActivity extends AppCompatActivity {
 
 
     }
+
     public List<ListItem> getAllDBEntries(String uid) {
         DbHelper dbHelper = new DbHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
