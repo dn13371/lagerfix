@@ -26,12 +26,14 @@
             //belongs to points to warehouse
             public static final String COLUMN_BELONGS_TO = "belongs_to";
             public static final String COLUMN_QTY = "quantity";
+            public static final String COLUMN_PRICE = "price";
             public static final String CREATE_TABLE =
                     "CREATE TABLE " + TABLE_NAME + " (" +
                             COLUMN_ID + " INTEGER PRIMARY KEY," +
                             COLUMN_ITEM_DESC+ " TEXT," +
                             COLUMN_EAN + " INTEGER,"+
                             COLUMN_BELONGS_TO + " TEXT," +
+                            COLUMN_PRICE + " INTEGER," +
                             COLUMN_QTY + " INTEGER)";
 
         }

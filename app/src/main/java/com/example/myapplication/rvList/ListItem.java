@@ -2,34 +2,39 @@ package com.example.myapplication.rvList;
 
 public class ListItem {
 
-    public ListItem(String id, String item_description, String ean, String belongs_to, String quantity){
-        this.id=id;
+    public ListItem( String item_description, long ean, String belongs_to,Float price, int quantity, long id){
         this.item_description = item_description;
         this.ean = ean;
         this.belongs_to = belongs_to;
+        this.price = price;
         this.quantity = quantity;
+        this.id = id;
 
 
     }
-    String id;
+    long id;
     String item_description;
-    String ean;
+    long ean;
     String belongs_to;
-    String quantity;
+    Float price;
 
-    public String getId(){
-        return id;
-    }
+    int quantity;
+
+
     public String getItem_description(){
         return item_description;
     }
-    public String getEan(){
+    public long getEan(){
         return ean;
     }
     public String getBelongs_to(){
         return belongs_to;
     }
-    public String getQuantity(){
+    public int getQuantity(){
         return quantity;
     }
+    public Float getPrice(){
+        return price;
+    }
+    public long getId(){return id;}
 }

@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.myapplication.WarehousesRvList.ListItemWarehouse;
+import com.example.myapplication.rvList.ListItem;
 import com.example.myapplication.rvListManageWarehouse.warehousesListRvList.ListItemManageWarehouse;
 
 import java.security.SecureRandom;
@@ -397,6 +398,235 @@ public class DbHelper extends SQLiteOpenHelper {
         return  warehouseObjects;
 
     }
+    public long insertItem(String itemDesc, long ean, String belongsTo, Float price, int quantity) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DBContract.ItemsDB.COLUMN_ITEM_DESC, itemDesc);
+        values.put(DBContract.ItemsDB.COLUMN_EAN, ean);
+        values.put(DBContract.ItemsDB.COLUMN_BELONGS_TO, belongsTo);
+        values.put(DBContract.ItemsDB.COLUMN_PRICE, price);
+        values.put(DBContract.ItemsDB.COLUMN_QTY, quantity);
+
+        // Insert the new item and get the inserted row ID
+        long newRowId = db.insert(DBContract.ItemsDB.TABLE_NAME, null, values);
+
+        // Close the database connection
+        db.close();
+
+        return newRowId;
+    }
+    public List<Long> getItemIdsByWarehouse(String warehouseId) {
+        List<Long> itemIds = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {DBContract.ItemsDB.COLUMN_ID};
+
+        String selection = DBContract.ItemsDB.COLUMN_BELONGS_TO + " = ?";
+        String[] selectionArgs = {warehouseId};
+
+        Cursor cursor = db.query(
+                DBContract.ItemsDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        while (cursor.moveToNext()) {
+            long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(DBContract.ItemsDB.COLUMN_ID));
+            itemIds.add(itemId);
+        }
+
+        cursor.close();
+        db.close();
+
+        return itemIds;
+    }
+    public String getItemDescriptionById(long itemId) {
+        String itemDescription = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {DBContract.ItemsDB.COLUMN_ITEM_DESC};
+
+        String selection = DBContract.ItemsDB.COLUMN_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(itemId)};
+
+        Cursor cursor = db.query(
+                DBContract.ItemsDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if (cursor.moveToFirst()) {
+            itemDescription = cursor.getString(cursor.getColumnIndexOrThrow(DBContract.ItemsDB.COLUMN_ITEM_DESC));
+        }
+
+        cursor.close();
+        db.close();
+
+        return itemDescription;
+    }
+    public Float getPriceById(long itemId) {
+        Float itemPrice = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {DBContract.ItemsDB.COLUMN_PRICE};
+
+        String selection = DBContract.ItemsDB.COLUMN_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(itemId)};
+
+        Cursor cursor = db.query(
+                DBContract.ItemsDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if (cursor.moveToFirst()) {
+            itemPrice = cursor.getFloat(cursor.getColumnIndexOrThrow(DBContract.ItemsDB.COLUMN_PRICE));
+        }
+
+        cursor.close();
+        db.close();
+
+        return itemPrice;
+    }
+    public long getEANById(long itemId) {
+        long itemEAN = -1; // Default value for error or not found
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {DBContract.ItemsDB.COLUMN_EAN};
+
+        String selection = DBContract.ItemsDB.COLUMN_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(itemId)};
+
+        Cursor cursor = db.query(
+                DBContract.ItemsDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if (cursor.moveToFirst()) {
+            itemEAN = cursor.getLong(cursor.getColumnIndexOrThrow(DBContract.ItemsDB.COLUMN_EAN));
+        }
+
+        cursor.close();
+        db.close();
+
+        return itemEAN;
+    }
+    public int getQuantityById(long itemId) {
+        int itemQuantity = -1; // Default value for error or not found
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {DBContract.ItemsDB.COLUMN_QTY};
+
+        String selection = DBContract.ItemsDB.COLUMN_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(itemId)};
+
+        Cursor cursor = db.query(
+                DBContract.ItemsDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if (cursor.moveToFirst()) {
+            itemQuantity = cursor.getInt(cursor.getColumnIndexOrThrow(DBContract.ItemsDB.COLUMN_QTY));
+        }
+
+        cursor.close();
+        db.close();
+
+        return itemQuantity;
+    }
+
+
+    public List<ListItem> createListItemObject (String warehouseID){
+        List<Long> itemIDs = getItemIdsByWarehouse(warehouseID);
+        List<ListItem> itemObjects = new ArrayList<>();
+        for (long itemID : itemIDs){
+            ListItem newWarehouse = new ListItem(getItemDescriptionById(itemID),getEANById(itemID),warehouseID,getPriceById(itemID),getQuantityById(itemID),itemID);
+            itemObjects.add(newWarehouse);
+        }
+        return  itemObjects;
+
+    }
+
+    public int incrementQuantityById(int currentQuantity, long itemId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Retrieve the current quantity
+
+
+        // Calculate the new quantity (increment by 1)
+        int newQuantity = currentQuantity + 1;
+
+        // Use ContentValues to perform the update
+        ContentValues values = new ContentValues();
+        values.put(DBContract.ItemsDB.COLUMN_QTY, newQuantity);
+
+        // Update the row with the specified item ID
+        db.update(
+                DBContract.ItemsDB.TABLE_NAME,
+                values,
+                DBContract.ItemsDB.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(itemId)}
+        );
+
+        // Note: Do not close the database connection here
+
+        // Return the updated quantity
+        return newQuantity;
+    }
+    public int decrementQuantityById(int currentQuantity, long itemId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Calculate the new quantity (decrement by 1)
+        int newQuantity = currentQuantity - 1;
+
+        // Ensure the quantity does not go below 0
+        if (newQuantity < 0) {
+            newQuantity = 0;
+        }
+
+        // Use ContentValues to perform the update
+        ContentValues values = new ContentValues();
+        values.put(DBContract.ItemsDB.COLUMN_QTY, newQuantity);
+
+        db.update(
+                DBContract.ItemsDB.TABLE_NAME,
+                values,
+                DBContract.ItemsDB.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(itemId)}
+        );
+
+
+        return newQuantity;
+    }
+
+
+
+
+
+
 
 
 

@@ -38,7 +38,7 @@ public class WarehouseActivity extends AppCompatActivity {
         //create a list of warehouses, the current User can access
         List<ListItemWarehouse> warehousesWithAccess = dbHelper.createWarehouseObject(loggedInUID);
         adapter = new ListViewAdapterWarehouse(warehousesWithAccess);
-        RecyclerView recyclerView = findViewById(R.id.rvWarehouseList);
+        RecyclerView recyclerView = findViewById(R.id.rvItemsList);
         recyclerView.setAdapter(adapter);
         adapter.setCurrentUser(loggedInUID);
         recyclerView.setLayoutManager(new LinearLayoutManager(WarehouseActivity.this));

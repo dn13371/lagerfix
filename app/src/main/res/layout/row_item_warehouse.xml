@@ -11,7 +11,7 @@
     >
 
     <TextView
-        android:id="@+id/warehouseName"
+        android:id="@+id/item_name"
         android:layout_width="312dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
