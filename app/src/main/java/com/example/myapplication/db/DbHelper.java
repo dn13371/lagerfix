@@ -1,14 +1,17 @@
 package com.example.myapplication.db;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.myapplication.WarehousesRvList.ListItemWarehouse;
 import com.example.myapplication.rvList.ListItem;
 import com.example.myapplication.rvListManageWarehouse.warehousesListRvList.ListItemManageWarehouse;
+import com.example.myapplication.rvListSale.ListItemSale;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ public class DbHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
+    
 
 
 
@@ -620,6 +624,151 @@ public class DbHelper extends SQLiteOpenHelper {
 
 
         return newQuantity;
+    }
+    @SuppressLint("Range")
+    public String getBelongsToForEAN(long ean) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String belongsTo = null;
+
+        String[] projection = {DBContract.ItemsDB.COLUMN_BELONGS_TO};
+        String selection = DBContract.ItemsDB.COLUMN_EAN + " = ?";
+        String[] selectionArgs = {String.valueOf(ean)};
+
+        Cursor cursor = db.query(
+                DBContract.ItemsDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            belongsTo = cursor.getString(cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_BELONGS_TO));
+            cursor.close();
+        }
+
+        return belongsTo;
+    }
+    public ListItemSale getItemSaleByEAN(long ean) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ListItemSale listItemSale = null;
+
+        String[] projection = {
+                DBContract.ItemsDB.COLUMN_ID,
+                DBContract.ItemsDB.COLUMN_ITEM_DESC,
+                DBContract.ItemsDB.COLUMN_EAN,
+                DBContract.ItemsDB.COLUMN_PRICE
+        };
+
+        String selection = DBContract.ItemsDB.COLUMN_EAN + " = ?";
+        String[] selectionArgs = {String.valueOf(ean)};
+
+        Cursor cursor = db.query(
+                DBContract.ItemsDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") long id = cursor.getLong(cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_ID));
+            @SuppressLint("Range") String itemDescription = cursor.getString(cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_ITEM_DESC));
+            @SuppressLint("Range") Float price = cursor.getFloat(cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_PRICE));
+
+            listItemSale = new ListItemSale(id, itemDescription, ean, price);
+            cursor.close();
+        }
+        db.close();
+        return listItemSale;
+    }
+    public boolean isEANExists(long ean) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT COUNT(*) FROM " + DBContract.ItemsDB.TABLE_NAME +
+                " WHERE " + DBContract.ItemsDB.COLUMN_EAN + " = ?";
+        String[] selectionArgs = {String.valueOf(ean)};
+
+        try (Cursor cursor = db.rawQuery(query, selectionArgs)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int count = cursor.getInt(0);
+                return count > 0;
+            }
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+        } finally {
+            db.close();
+        }
+
+        return false;
+    }
+    public void deleteItemById(long itemId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = DBContract.ItemsDB.COLUMN_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(itemId) };
+        db.delete(DBContract.ItemsDB.TABLE_NAME, selection, selectionArgs);
+        db.close();
+    }
+    public void removeQuantitiesForItems(List<ListItemSale> items) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        for (ListItemSale item : items) {
+            // Get the current quantity of the item
+            int currentQuantity = getQuantityById(item.getId());
+
+            // Calculate the new quantity after removing
+            int newQuantity = currentQuantity - item.getQuantity();
+
+            // If the new quantity is less than or equal to 0, delete the row
+            if (newQuantity <= 0) {
+                deleteItemById(item.getId());
+            } else {
+                // Update the quantity in the database
+                ContentValues values = new ContentValues();
+                values.put(DBContract.ItemsDB.COLUMN_QTY, newQuantity);
+
+                String selection = DBContract.ItemsDB.COLUMN_ID + " = ?";
+                String[] selectionArgs = {String.valueOf(item.getId())};
+
+                db.update(DBContract.ItemsDB.TABLE_NAME, values, selection, selectionArgs);
+            }
+        }
+
+        db.close();  // Close the database connection
+    }
+
+    // Helper method to get the current quantity of an item by its ID
+    @SuppressLint("Range")
+    private int getItemQuantityById(long itemId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {DBContract.ItemsDB.COLUMN_QTY};
+        String selection = DBContract.ItemsDB.COLUMN_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(itemId)};
+
+        Cursor cursor = db.query(
+                DBContract.ItemsDB.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        int quantity = 0;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            quantity = cursor.getInt(cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_QTY));
+            cursor.close();
+        }
+
+        db.close();
+
+        return quantity;
     }
 
 

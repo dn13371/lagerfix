@@ -37,6 +37,7 @@
                             COLUMN_QTY + " INTEGER)";
 
         }
+
         public static class WarehousesDB {
             public static final String TABLE_NAME = "warehouses";
             public static final String COLUMN_ID = "warehouse_id";

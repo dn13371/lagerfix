@@ -71,6 +71,9 @@ public class ListViewAdapter extends
             public void onClick(View v) {
                 Integer newqty = dbHelper.decrementQuantityById(dbHelper.getQuantityById(item.getId()),item.getId());
                 qty.setText(String.valueOf(newqty));
+                if (newqty == 0){
+                    dbHelper.deleteItemById(item.getId());
+                }
 
             }
         });

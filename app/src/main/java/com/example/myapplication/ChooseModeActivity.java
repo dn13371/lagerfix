@@ -43,6 +43,11 @@ public class ChooseModeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String mode = "0";
+                Intent intent = new Intent(ChooseModeActivity.this, SellItemsActivity.class);
+                intent.putExtra("UID", loggedInUID);
+                intent.putExtra("UNAME", loggedInUNAME);
+                intent.putExtra("mode", mode);
+                startActivity(intent);
 
 
 

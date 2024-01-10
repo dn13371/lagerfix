@@ -63,7 +63,6 @@ public class AddItemActivity extends AppCompatActivity {
                 i++;
             } catch (NumberFormatException e) {
                 e.printStackTrace();
-                // Handle the case where the price is not a valid integer
                 return; // Stop further execution if parsing fails
             }
 
@@ -76,8 +75,16 @@ public class AddItemActivity extends AppCompatActivity {
                 return; // Stop further execution if parsing fails
             }
             if (i==4){
-                dbHelper.insertItem(itemDesc, ean, belongsTo, price, quantity);
-                confirmButton.setEnabled(false);
+                if(dbHelper.isEANExists(ean)){
+                    Toast.makeText(AddItemActivity.this, "ean already exits in other warehouse", Toast.LENGTH_SHORT).show();
+
+                }
+                else {
+
+                        dbHelper.insertItem(itemDesc, ean, belongsTo, price, quantity);
+                        confirmButton.setEnabled(false);
+                }
+
             }
 
             if (i<4){
