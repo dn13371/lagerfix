@@ -595,9 +595,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(itemId)}
         );
 
-        // Note: Do not close the database connection here
 
-        // Return the updated quantity
         return newQuantity;
     }
     public int decrementQuantityById(int currentQuantity, long itemId) {
@@ -712,64 +710,52 @@ public class DbHelper extends SQLiteOpenHelper {
         db.delete(DBContract.ItemsDB.TABLE_NAME, selection, selectionArgs);
         db.close();
     }
-    public void removeQuantitiesForItems(List<ListItemSale> items) {
+    public void removeQuantityForItemID(int itemId, int quantityToRemove) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        for (ListItemSale item : items) {
-            // Get the current quantity of the item
-            int currentQuantity = getQuantityById(item.getId());
+        // Calculate the new quantity after removing the specified amount
+        int currentQuantity = getCurrentQuantity(itemId);
+        int newQuantity = Math.max(0, currentQuantity - quantityToRemove);
 
-            // Calculate the new quantity after removing
-            int newQuantity = currentQuantity - item.getQuantity();
+        if (newQuantity > 0) {
+            // Update the quantity in the database
+            ContentValues values = new ContentValues();
+            values.put(DBContract.ItemsDB.COLUMN_QTY, newQuantity);
 
-            // If the new quantity is less than or equal to 0, delete the row
-            if (newQuantity <= 0) {
-                deleteItemById(item.getId());
-            } else {
-                // Update the quantity in the database
-                ContentValues values = new ContentValues();
-                values.put(DBContract.ItemsDB.COLUMN_QTY, newQuantity);
+            String whereClause = DBContract.ItemsDB.COLUMN_ID + "=?";
+            String[] whereArgs = {String.valueOf(itemId)};
 
-                String selection = DBContract.ItemsDB.COLUMN_ID + " = ?";
-                String[] selectionArgs = {String.valueOf(item.getId())};
+            db.update(DBContract.ItemsDB.TABLE_NAME, values, whereClause, whereArgs);
+        } else {
+            // Remove the row if new quantity is 0
+            String whereClause = DBContract.ItemsDB.COLUMN_ID + "=?";
+            String[] whereArgs = {String.valueOf(itemId)};
 
-                db.update(DBContract.ItemsDB.TABLE_NAME, values, selection, selectionArgs);
-            }
+            db.delete(DBContract.ItemsDB.TABLE_NAME, whereClause, whereArgs);
         }
 
-        db.close();  // Close the database connection
-    }
-
-    // Helper method to get the current quantity of an item by its ID
-    @SuppressLint("Range")
-    private int getItemQuantityById(long itemId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        String[] projection = {DBContract.ItemsDB.COLUMN_QTY};
-        String selection = DBContract.ItemsDB.COLUMN_ID + " = ?";
-        String[] selectionArgs = {String.valueOf(itemId)};
-
-        Cursor cursor = db.query(
-                DBContract.ItemsDB.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
-
-        int quantity = 0;
-
-        if (cursor != null && cursor.moveToFirst()) {
-            quantity = cursor.getInt(cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_QTY));
-            cursor.close();
-        }
-
+        // Close the database connection
         db.close();
-
-        return quantity;
     }
+
+
+    // Helper method to get the current quantity of an item
+    private int getCurrentQuantity(int itemId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String query = "SELECT " + DBContract.ItemsDB.COLUMN_QTY + " FROM " + DBContract.ItemsDB.TABLE_NAME +
+                " WHERE " + DBContract.ItemsDB.COLUMN_ID + " = " + itemId;
+
+        Cursor cursor = db.rawQuery(query, null);
+        cursor.moveToFirst();
+        @SuppressLint("Range") int currentQuantity = cursor.getInt(cursor.getColumnIndex(DBContract.ItemsDB.COLUMN_QTY));
+        cursor.close();
+
+        return currentQuantity;
+    }
+
+
+
 
 
 

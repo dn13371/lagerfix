@@ -80,15 +80,29 @@ public class SellItemsActivity extends AppCompatActivity {
                     if (access){
                         for (ListItemSale item : itemsToSell){
                             if(item.getEan() == enteredEAN){
+
+
+                                int available = dbHelper.getQuantityById(item.getId());
+                                int desiredAmout = item.getQuantity() +1 ;
+                                int remaining = available -desiredAmout;
+                                Log.d("WarehouseActivity", String.valueOf(available) + " " + String.valueOf(desiredAmout)+" "+String.valueOf(remaining));
+
+                                if(remaining <0){
+                                    Toast.makeText(SellItemsActivity.this, "you cant add more of this item", Toast.LENGTH_SHORT).show();
+                                    inList = true;
+
+                                }
+                                else{
                                 item.addItem();
                                 inList = true;
-                                Toast.makeText(SellItemsActivity.this, "already in list", Toast.LENGTH_SHORT).show();
-                                adapter.updateList(itemsToSell);
+                                Toast.makeText(SellItemsActivity.this, "already in list, adding another one", Toast.LENGTH_SHORT).show();
+                                adapter.updateList(itemsToSell);}
                             }
 
                         }
 
                         if(inList ==false){
+
 
 
                             ListItemSale newItem = dbHelper.getItemSaleByEAN(enteredEAN);
@@ -108,7 +122,6 @@ public class SellItemsActivity extends AppCompatActivity {
 
                         }
                     double sum = 0;
-
                     for (ListItemSale item : itemsToSell) {
 
                         Double totalPrice = Double.valueOf(item.getTotalPrice());
@@ -116,6 +129,7 @@ public class SellItemsActivity extends AppCompatActivity {
                             sum = sum + totalPrice;
                         }
                     }
+
                     total.setText(String.valueOf(sum));
 
                 }
@@ -127,8 +141,13 @@ public class SellItemsActivity extends AppCompatActivity {
         checkout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            dbHelper.removeQuantitiesForItems(itemsToSell);
-
+                for (ListItemSale item : itemsToSell){
+                    String totalSum = total.getText().toString();
+                    dbHelper.removeQuantityForItemID((int)item.getId(),item.getQuantity());
+                    checkout.setEnabled(false);
+                    Toast.makeText(SellItemsActivity.this, "total sum of this shopping cart: "+ totalSum, Toast.LENGTH_SHORT).show();
+                    addWarehouse.setEnabled(false);
+                }
             }
         });
     }
