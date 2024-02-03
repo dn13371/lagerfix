@@ -33,6 +33,7 @@ public class ChooseModeActivity extends AppCompatActivity {
         TextView welcomeMSG = findViewById(R.id.welcomeUser);
         Button modeSale = findViewById(R.id.modeSale);
         Button modeWarehouse = findViewById(R.id.modeWarehouse);
+        Button eanScanner = findViewById(R.id.EANScanner);
         System.out.println(intent.getStringExtra("UID"));
 
         if (intent!=null){
@@ -60,6 +61,16 @@ public class ChooseModeActivity extends AppCompatActivity {
                 Intent intent = new Intent(ChooseModeActivity.this, WarehouseActivity.class);
                 intent.putExtra("UID", loggedInUID);
                 intent.putExtra("UNAME", loggedInUNAME);
+                intent.putExtra("mode", mode);
+                startActivity(intent);
+            }
+        });
+
+        eanScanner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Integer mode = 1;
+                Intent intent = new Intent(ChooseModeActivity.this, EANScanner.class);
                 intent.putExtra("mode", mode);
                 startActivity(intent);
             }
