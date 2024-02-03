@@ -1,8 +1,11 @@
 package com.example.myapplication;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,11 +19,14 @@ import android.widget.Toast;
 
 import com.example.myapplication.db.DBContract;
 import com.example.myapplication.db.DbHelper;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import org.w3c.dom.Text;
 
 public class AddItemActivity extends AppCompatActivity {
-
+    FloatingActionButton scanButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +45,19 @@ public class AddItemActivity extends AppCompatActivity {
         EditText quantityField = findViewById(R.id.quantity_field);
         EditText priceField = findViewById(R.id.price_field);
         Button confirmButton = findViewById(R.id.confirm_button);
+        scanButton = findViewById(R.id.scanButton);
+
+
+        scanButton.setOnClickListener(v ->{
+                scanCode(new ScanResultCallback() {
+                    @Override
+                    public void onScanResult(String scannedResult) {
+                        eanField.setText(scannedResult);
+                    }
+                });
+
+
+        });
 
         confirmButton.setOnClickListener(v -> {
             int i = 0;
@@ -103,8 +122,36 @@ public class AddItemActivity extends AppCompatActivity {
 
 
     }
+    public interface ScanResultCallback {
+        void onScanResult(String scannedResult);
+    }
+    public void scanCode(ScanResultCallback callback){
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("scan ean code !");
+        options.setOrientationLocked(true);
+        options.setCaptureActivity(CaptureAct.class);
+        barLaucher.launch(options);
+        this.scanResultCallback = callback;
+    }
+    private ScanResultCallback scanResultCallback;
 
+    ActivityResultLauncher<ScanOptions> barLaucher = registerForActivityResult(new ScanContract(), result->
+    {
+        if(result.getContents() !=null)
+        {
+            if (scanResultCallback != null) {
+                scanResultCallback.onScanResult(result.getContents());
+                showAlertDialog(result.getContents());
+            }
 
+        }
+    });
+    private void showAlertDialog(String scannedResult) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(AddItemActivity.this);
+        builder.setTitle("EAN Number: ");
+        builder.setMessage(scannedResult);
+        builder.setPositiveButton("OK", (dialogInterface, i) -> dialogInterface.dismiss()).show();
+    }
 
 
 }

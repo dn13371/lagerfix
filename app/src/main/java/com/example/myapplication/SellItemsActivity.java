@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,12 +19,14 @@ import com.example.myapplication.WarehousesRvList.ListViewAdapterWarehouse;
 import com.example.myapplication.db.DbHelper;
 import com.example.myapplication.rvListSale.ListItemSale;
 import com.example.myapplication.rvListSale.ListViewAdapterSale;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SellItemsActivity extends AppCompatActivity {
-
+    Button scanButton;
     private ListViewAdapterSale adapter;
     private String loggedInUID;
     List<ListItemSale> itemsToSell = new ArrayList<>();
@@ -45,8 +49,17 @@ public class SellItemsActivity extends AppCompatActivity {
         TextView total = findViewById(R.id.textViewTotal);
         Button checkout = findViewById(R.id.checkoutButton);
         //create a list of warehouses, the current User can access
+        scanButton = findViewById(R.id.scanButtonSell);
+        scanButton.setOnClickListener(v ->{
+            scanCode(new AddItemActivity.ScanResultCallback() {
+                @Override
+                public void onScanResult(String scannedResult) {
+                    eanField.setText(scannedResult);
+                }
+            });
 
 
+        });
 
 
         adapter = new ListViewAdapterSale(itemsToSell);
@@ -64,11 +77,15 @@ public class SellItemsActivity extends AppCompatActivity {
         addWarehouse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               Integer enteredEAN;
+               Long enteredEAN;
                 try {
-                    enteredEAN = Integer.parseInt(eanField.getText().toString());
+                    enteredEAN = Long.parseLong(eanField.getText().toString());
+                    Log.d("ListViewAdapterSale", "enteredean:  " +enteredEAN);
+
 
                 } catch (NumberFormatException e) {
+                    Log.d("ListViewAdapterSale", "int overflow:  ");
+
                     e.printStackTrace();
                     return; // Stop further execution if parsing fails
                 }
@@ -109,7 +126,6 @@ public class SellItemsActivity extends AppCompatActivity {
 
                             itemsToSell.add(newItem);
                             itemsToSell.get(0).getId();
-                            Log.d("ListViewAdapterSale", "SHOULD BE SIZE " +itemsToSell.size());
                             adapter.updateList(itemsToSell);
 
 
@@ -158,6 +174,37 @@ public class SellItemsActivity extends AppCompatActivity {
         Log.d("WarehouseActivity", "onResume");
        // updateWarehouseList();
     }
+    public interface ScanResultCallback {
+        void onScanResult(String scannedResult);
+    }
+    public void scanCode(AddItemActivity.ScanResultCallback callback){
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("scan ean code !");
+        options.setOrientationLocked(true);
+        options.setCaptureActivity(CaptureAct.class);
+        barLaucher.launch(options);
+        this.scanResultCallback = callback;
+    }
+    private AddItemActivity.ScanResultCallback scanResultCallback;
+
+    ActivityResultLauncher<ScanOptions> barLaucher = registerForActivityResult(new ScanContract(), result->
+    {
+        if(result.getContents() !=null)
+        {
+            if (scanResultCallback != null) {
+                scanResultCallback.onScanResult(result.getContents());
+                showAlertDialog(result.getContents());
+            }
+
+        }
+    });
+    private void showAlertDialog(String scannedResult) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(SellItemsActivity.this);
+        builder.setTitle("EAN Number: ");
+        builder.setMessage(scannedResult);
+        builder.setPositiveButton("OK", (dialogInterface, i) -> dialogInterface.dismiss()).show();
+    }
+
 }
 
 

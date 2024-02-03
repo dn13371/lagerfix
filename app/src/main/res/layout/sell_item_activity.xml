@@ -7,8 +7,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvItemsList"
-        android:layout_width="413dp"
-        android:layout_height="602dp"
+        android:layout_width="406dp"
+        android:layout_height="542dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toTopOf="@+id/addWarehouseButton"
         app:layout_constraintEnd_toEndOf="parent"
@@ -44,13 +44,10 @@
         android:id="@+id/addWarehouseButton"
         android:layout_width="61dp"
         android:layout_height="46dp"
-        android:layout_marginStart="13dp"
-        android:layout_marginEnd="124dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginTop="52dp"
+        android:layout_marginEnd="120dp"
         android:text="+"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ean_field"
         app:layout_constraintTop_toBottomOf="@+id/rvItemsList" />
 
     <EditText
@@ -58,7 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="3dp"
-        android:layout_marginTop="1dp"
+        android:layout_marginTop="52dp"
         android:ems="10"
         android:inputType="number"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,10 +66,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="17dp"
-        android:layout_marginTop="9dp"
+        android:layout_marginTop="48dp"
         android:layout_marginEnd="16dp"
         android:text="Checkout"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.772"
         app:layout_constraintStart_toEndOf="@+id/addWarehouseButton"
         app:layout_constraintTop_toBottomOf="@+id/rvItemsList" />
 
@@ -85,5 +83,19 @@
         android:text="Total: 0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/scanButtonSell"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="13dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="2dp"
+        android:text="Scan EAN"
+        app:layout_constraintBottom_toTopOf="@+id/addWarehouseButton"
+        app:layout_constraintEnd_toStartOf="@+id/checkoutButton"
+        app:layout_constraintStart_toEndOf="@+id/ean_field"
+        app:layout_constraintTop_toBottomOf="@+id/rvItemsList" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
