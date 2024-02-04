@@ -754,6 +754,22 @@ public class DbHelper extends SQLiteOpenHelper {
         return currentQuantity;
     }
 
+    public void changePasswordForUsername(String username, String newPassword) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Update the password in the database
+        ContentValues values = new ContentValues();
+        values.put(DBContract.LoginDB.COLUMN_PASSWD, newPassword);
+
+        String whereClause = DBContract.LoginDB.COLUMN_UNAME + "=?";
+        String[] whereArgs = {username};
+
+        db.update(DBContract.LoginDB.TABLE_NAME, values, whereClause, whereArgs);
+
+        // Close the database connection
+        db.close();
+    }
+
 
 
 

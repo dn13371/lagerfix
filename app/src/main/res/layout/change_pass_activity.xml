@@ -9,6 +9,22 @@
     tools:context=".MainActivity">
 
     <EditText
+        android:id="@+id/passfield2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="120dp"
+        android:layout_marginEnd="32dp"
+        android:background="#474040"
+        android:hint="New Password"
+        android:inputType="textPassword"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/enteruser" />
+
+    <EditText
         android:id="@+id/enteruser"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -26,14 +42,15 @@
         android:id="@+id/passfield"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="32dp"
+        android:layout_marginTop="28dp"
         android:layout_marginEnd="32dp"
         android:background="#474040"
-        android:padding="16dp"
         android:hint="Password"
         android:inputType="textPassword"
+        android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/enteruser" />
 
@@ -41,39 +58,16 @@
         android:id="@+id/confirmButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="32dp"
+        android:layout_marginTop="140dp"
         android:layout_marginEnd="32dp"
-        android:text="Login"
-        android:textColor="#ffffff"
         android:background="#756b6b"
         android:padding="16dp"
+        android:text="Confirm"
+        android:textColor="#ffffff"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/passfield" />
-
-    <Button
-        android:id="@+id/rbutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Register"
-        android:textColor="#009688"
-        android:background="#756b6b"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/confirmButton" />
-
-    <Button
-        android:id="@+id/changePass"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:background="#756b6b"
-        android:text="change password"
-        android:textColor="#009688"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/confirmButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

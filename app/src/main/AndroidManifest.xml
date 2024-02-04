@@ -34,6 +34,7 @@
         <activity android:name=".EditWarehouseActivity" />
         <activity android:name=".AddItemActivity" />
         <activity android:name=".SellItemsActivity" />
+        <activity android:name=".ChangePasswordActivity" />
         <activity android:name=".CaptureAct"
             android:screenOrientation="portrait"
             android:stateNotNeeded="true"

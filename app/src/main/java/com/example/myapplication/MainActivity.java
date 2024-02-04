@@ -1,24 +1,17 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.myapplication.db.DBContract;
 import com.example.myapplication.db.DbHelper;
 
 public class MainActivity extends AppCompatActivity {
-        private final String usr_name = "tits";
-        private final String password = "ass";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +24,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         //button stuff
-        Button loginButton = findViewById(R.id.login);
+        Button loginButton = findViewById(R.id.confirmButton);
+        Button changePass = findViewById(R.id.changePass);
+        changePass.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ChangePasswordActivity.class);
+            startActivity(intent);
+
+        });
+
         loginButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -68,17 +68,11 @@ public class MainActivity extends AppCompatActivity {
 
                 String user = username.getText().toString();
                 String pass = passfield.getText().toString();
-                if(user.equals("anni")){
-
-                    Toast.makeText(MainActivity.this, "ANNI IST EIN RICHTOG FETTES SCHWEIN", Toast.LENGTH_SHORT).show();
-                    Toast.makeText(MainActivity.this, "Grunz grunz grunz", Toast.LENGTH_SHORT).show();
-
-                }
 
                 try{
                     if(dbHelper.usernameExists(user)==false){
                     dbHelper.createUser(user, pass);
-                    Toast.makeText(MainActivity.this, "register sucksesful", Toast.LENGTH_SHORT).show();}
+                    Toast.makeText(MainActivity.this, "register successful", Toast.LENGTH_SHORT).show();}
                     else{
                         Toast.makeText(MainActivity.this, "username is taken", Toast.LENGTH_SHORT).show();
 
